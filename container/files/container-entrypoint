@@ -1,0 +1,7 @@
+#!/bin/bash
+
+if [ ! -f /var/www/html/index.html ]; then
+	    echo "This is a webserver build by podman" > /var/www/html/index.html
+fi
+
+exec $*

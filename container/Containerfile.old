@@ -1,0 +1,35 @@
+FROM registry.redhat.io/ubi8/ubi-minimal as mybase
+
+# next two commands are only for analysing and troubleshooting
+RUN microdnf -y install procps-ng iproute iputils && \
+    microdnf clean all && \
+
+FROM mybase as final
+
+ENV HTTPD_PORT=8080
+
+ARG LOGDIR=/var/log/httpd
+
+LABEL description="My first Container Image" && \
+      maintainer="J. Freygner"
+
+RUN microdnf -y install httpd && \
+    microdnf -y update && \
+    microdnf clean all && \
+    sed -i "/^Listen/s/80/$HTTPD_PORT/" /etc/httpd/conf/httpd.conf && \
+    echo "This is a webserver build by podman" > /var/www/html/index.html && \
+    chgrp -R 0 $LOGDIR /var/run/httpd && \
+    chmod -R g=u $LOGDIR /var/run/httpd
+
+
+ADD files/container-entrypoint /usr/local/sbin
+
+USER apache
+
+EXPOSE $HTTPD_PORT
+
+VOLUME /var/www/html
+
+ENTRYPOINT ["/usr/local/sbin/container-entrypoint"]
+
+CMD ["/usr/sbin/httpd","-DFOREGROUND"]
