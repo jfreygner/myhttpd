@@ -32,7 +32,7 @@ pipeline {
                 sh '''
                         oc new-project ${DEV_PROJECT}
                         oc new-app  --name=${APP_NAME} --image=${IMAGE_URL}
-                        oc expose svc myhtpd
+                        oc expose svc ${APP_NAME}
                    '''
             }
         }
