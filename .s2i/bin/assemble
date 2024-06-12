@@ -1,5 +1,5 @@
 #!/usr/bin/bash
 
-cp /tmp/src/index.html .
+cp /tmp/src/index.html /var/www/html
 
 echo "index.html copied"
