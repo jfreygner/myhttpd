@@ -1,0 +1,36 @@
+FROM registry.redhat.io/ubi9/ubi-minimal
+
+ENV HTTPD_PORT=8080
+
+ARG LOGDIR=/var/log/httpd
+
+LABEL description="My first HTTPD Container Image" \
+      maintainer="J. Freygner" \
+      version="1.0"
+
+RUN microdnf -y --nodocs install httpd && \
+    microdnf -y update && \
+    microdnf clean all && \
+    sed -i "/^Listen/s/80/$HTTPD_PORT/" /etc/httpd/conf/httpd.conf && \
+    echo "<h1>This is testpage #2 from a containerimage build with podman</h1>" > /var/www/html/index.html && \
+    chown -R 4711:0 $LOGDIR /var/run/httpd && \
+    chmod -R g=u $LOGDIR /var/run/httpd
+
+ADD files/container-entrypoint /usr/local/sbin
+
+EXPOSE $HTTPD_PORT
+
+VOLUME /var/www/html
+
+# next two commands are only for analysing and troubleshooting
+# remove for production images 
+RUN microdnf -y --nodocs install procps-ng iproute iputils tar rsync && \
+    microdnf clean all
+
+USER 4711
+
+ENV VAR1=testme2
+
+ENTRYPOINT ["/usr/local/sbin/container-entrypoint"]
+
+CMD ["/usr/sbin/httpd","-DFOREGROUND"]

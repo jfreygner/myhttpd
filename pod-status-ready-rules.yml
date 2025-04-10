@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    role: alert-rules
+  name: kub-pod-container-status-ready-rules
+spec:
+  groups:
+  - name: readiness-probe-alerts
+    rules:
+    - alert: ReadinessProbeFailed
+      expr: |
+        kube_pod_container_status_ready{namespace="fre-myhttpd"} == 0
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: 'Readiness probe failed for pod {{ $labels.pod }}'
+        description: 'The readiness probe for pod {{ $labels.pod }} in namespace {{ $labels.namespace }} has failed for more than 1 minute.'
